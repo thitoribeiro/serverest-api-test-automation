@@ -1,0 +1,25 @@
+{
+  "name": "serverest-api-test-automation",
+  "version": "1.0.0",
+  "description": "Projeto de automação de testes de API do ServeRest",
+  "main": "index.js",
+  "scripts": {
+    "cy:run:chrome:headed": "cypress run --e2e --browser chrome --headed",
+    "cy:run:firefox:headed": "cypress run --e2e --browser firefox --headed",
+    "cy:run:webkit:headed": "cypress run --e2e --browser webkit --headed", 
+    "cy:run:safari:headed": "npm run cy:run:webkit:headed",
+    "cy:run:chrome:headless": "cypress run --e2e --browser chrome --headless",
+    "cy:run:firefox:headless": "cypress run --e2e --browser firefox --headless",
+    "cy:run:webkit:headless": "cypress run --e2e --browser webkit --headless",
+    "cy:run:safari:headless": "npm run cy:run:webkit:headless",
+    "cy:run:all:headed": "npm run cy:run:chrome:headed && npm run cy:run:firefox:headed && npm run cy:run:webkit:headed",
+    "cy:run:all:headless": "npm run cy:run:chrome:headless && npm run cy:run:firefox:headless && npm run cy:run:webkit:headless"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "ajv": "^8.12.0",
+    "cypress": "^13.6.3"
+  }
+}
