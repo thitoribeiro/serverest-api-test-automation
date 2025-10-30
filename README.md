@@ -92,7 +92,7 @@ Este projeto implementa uma suíte completa de testes automatizados para a API R
 ### Estrutura de Diretórios
 
 ```
-serverest-api-test-automation/
+serverest-api-e2e-test-automation/
 │
 ├── cypress/                          # Diretório principal do Cypress
 │   ├── e2e/                         # Testes end-to-end
@@ -239,8 +239,8 @@ git --version   # Qualquer versão recente
 ### 1. Clone o repositório
 
 ```bash
-git clone https://github.com/thitoribeiro/serverest-api-test-automation.git
-cd serverest-api-test-automation
+git clone https://github.com/thitoribeiro/serverest-api-e2e-test-automation.git
+cd serverest-api-e2e-test-automation
 ```
 
 ### 2. Instale as dependências

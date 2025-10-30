@@ -1,5 +1,5 @@
 {
-  "name": "serverest-api-test-automation",
+  "name": "serverest-api-e2e-test-automation",
   "version": "1.0.0",
   "description": "Projeto de automação de testes de API do ServeRest",
   "type": "module",
