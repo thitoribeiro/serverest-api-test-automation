@@ -32,10 +32,10 @@ export function createTestUser(userData) {
     failOnStatusCode: false
   }).then((res) => {
     if (res.status === 201) {
-      cy.log(`✅ Usuário criado: ${userData.nome} (${userData.email}) - ID: ${res.body._id}`);
+      cy.log(`Usuário criado: ${userData.nome} (${userData.email}) - ID: ${res.body._id}`);
       validateSchema(res.body, postUsuarioSuccessSchema);
     } else {
-      cy.log(`❌ Falha ao criar usuário: ${userData.nome} (${userData.email}) - Status: ${res.status}`);
+      cy.log(`Falha ao criar usuário: ${userData.nome} (${userData.email}) - Status: ${res.status}`);
     }
   });
 }
@@ -68,7 +68,7 @@ export function cleanupTestUsers(userIds) {
         failOnStatusCode: false
       }).then((res) => {
         if (res.status === 200) {
-          cy.log(`🗑️ Usuário deletado: ${userId}`);
+          cy.log(`Usuário deletado: ${userId}`);
         }
       });
     }

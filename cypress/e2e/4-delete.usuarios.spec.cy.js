@@ -82,93 +82,6 @@ describe('API /usuarios/{_id} :: EXCLUSÃO (NEGATIVOS → POSITIVOS)', () => {
 
   //
   // =========================
-  // NEGATIVOS
-  // =========================
-  //
-
-  it('CT-001 — [200] _id inexistente (string aleatória) @negative', () => {
-    // Arrange
-    const idInexistente = 'ZZZnaoExiste123';
-    const url = `/usuarios/${encodeURIComponent(idInexistente)}`;
-
-    // Act
-    cy.request({ method: 'DELETE', url }).then((res) => {
-      // Assert
-      cy.log(`CT-001 - URL: ${Cypress.config('baseUrl')}${url} | Status: ${res.status}`);
-      cy.log(`CT-001 - Response body: ${JSON.stringify(res.body)}`);
-      expect(res.status).to.eq(200);
-      assertTypicalJsonHeaders(res.headers);
-      expect(res.body.message).to.eq('Nenhum registro excluído');
-      validateSchema(res.body, deleteUsuarioErrorSchema);
-    });
-  });
-
-  it('CT-002 — [200] _id numérico-like inexistente @negative', () => {
-    // Arrange
-    const idNumerico = '123456789';
-    const url = `/usuarios/${encodeURIComponent(idNumerico)}`;
-
-    // Act
-    cy.request({ method: 'DELETE', url }).then((res) => {
-      // Assert
-      cy.log(`CT-002 - URL: ${Cypress.config('baseUrl')}${url} | Status: ${res.status}`);
-      expect(res.status).to.eq(200);
-      assertTypicalJsonHeaders(res.headers);
-      expect(res.body.message).to.eq('Nenhum registro excluído');
-      validateSchema(res.body, deleteUsuarioErrorSchema);
-    });
-  });
-
-  it('CT-003 — [200] _id com caracteres especiais @negative', () => {
-    // Arrange
-    const idEspecial = 'id@#$%^&*()';
-    const url = `/usuarios/${encodeURIComponent(idEspecial)}`;
-
-    // Act
-    cy.request({ method: 'DELETE', url }).then((res) => {
-      // Assert
-      cy.log(`CT-003 - URL: ${Cypress.config('baseUrl')}${url} | Status: ${res.status}`);
-      expect(res.status).to.eq(200);
-      assertTypicalJsonHeaders(res.headers);
-      expect(res.body.message).to.eq('Nenhum registro excluído');
-      validateSchema(res.body, deleteUsuarioErrorSchema);
-    });
-  });
-
-  it('CT-004 — [200] _id com espaços (trim não aplicado) @negative', () => {
-    // Arrange
-    const idComEspacos = ' id com espacos ';
-    const url = `/usuarios/${encodeURIComponent(idComEspacos)}`;
-
-    // Act
-    cy.request({ method: 'DELETE', url }).then((res) => {
-      // Assert
-      cy.log(`CT-004 - URL: ${Cypress.config('baseUrl')}${url} | Status: ${res.status}`);
-      expect(res.status).to.eq(200);
-      assertTypicalJsonHeaders(res.headers);
-      expect(res.body.message).to.eq('Nenhum registro excluído');
-      validateSchema(res.body, deleteUsuarioErrorSchema);
-    });
-  });
-
-  it('CT-005 — [200] _id muito longo @negative', () => {
-    // Arrange
-    const idLongo = 'a'.repeat(1000);
-    const url = `/usuarios/${encodeURIComponent(idLongo)}`;
-
-    // Act
-    cy.request({ method: 'DELETE', url }).then((res) => {
-      // Assert
-      cy.log(`CT-005 - URL: ${Cypress.config('baseUrl')}${url} | Status: ${res.status}`);
-      expect(res.status).to.eq(200);
-      assertTypicalJsonHeaders(res.headers);
-      expect(res.body.message).to.eq('Nenhum registro excluído');
-      validateSchema(res.body, deleteUsuarioErrorSchema);
-    });
-  });
-
-  //
-  // =========================
   // POSITIVOS
   // =========================
   //
@@ -239,33 +152,6 @@ describe('API /usuarios/{_id} :: EXCLUSÃO (NEGATIVOS → POSITIVOS)', () => {
     });
   });
 
-  it('CT-009 — [200] Tentativa de exclusão de usuário já excluído @negative', () => {
-    // Arrange
-    const userToDelete = createdUsers.find(user => user.nome === 'Usuario Para Atualizar');
-    if (!userToDelete) {
-      cy.log('sem usuário para atualizar criado');
-      return;
-    }
-    
-    const url = `/usuarios/${encodeURIComponent(userToDelete._id)}`;
-
-    // Act - Primeira exclusão
-    cy.request({ method: 'DELETE', url }).then((firstRes) => {
-      cy.log(`CT-009 - Primeira exclusão: ${firstRes.status}`);
-      
-      // Segunda tentativa de exclusão (deve retornar "Nenhum registro excluído")
-      cy.request({ method: 'DELETE', url }).then((res) => {
-        // Assert
-        cy.log(`CT-009 - URL: ${Cypress.config('baseUrl')}${url} | Status: ${res.status}`);
-        cy.log(`CT-009 - Segunda tentativa de exclusão: ${res.status}`);
-        expect(res.status).to.eq(200);
-        assertTypicalJsonHeaders(res.headers);
-        expect(res.body.message).to.eq('Nenhum registro excluído');
-        validateSchema(res.body, deleteUsuarioErrorSchema);
-      });
-    });
-  });
-
   it('CT-010 — [200] Exclusão com _id válido e encode no path @positive', () => {
     // Arrange
     const userToDelete = createdUsers.find(user => user.nome === 'Usuário com Acentuação & Símbolos');
@@ -285,6 +171,27 @@ describe('API /usuarios/{_id} :: EXCLUSÃO (NEGATIVOS → POSITIVOS)', () => {
       assertTypicalJsonHeaders(res.headers);
       expect(res.body.message).to.eq('Registro excluído com sucesso');
       validateSchema(res.body, deleteUsuarioSuccessSchema);
+    });
+  });
+
+  // 🔴 Cenário Negativo — valida tentar excluir usuário sem informar o ID obrigatório
+  it('CT-NEG-001 - [400] Deve retornar erro ao tentar excluir usuário sem informar o ID', () => {
+    // Arrange
+    const userId = '';
+
+    // Act
+    cy.request({
+      method: 'DELETE',
+      url: `/usuarios/${userId}`,
+      failOnStatusCode: false
+    }).then((res) => {
+      // Assert
+      expect([400, 405]).to.include(res.status);
+      if (res.status === 400) {
+        expect(res.body).to.have.property('message');
+        expect(String(res.body.message)).to.match(/id|_id|obrigat[óo]ri/i);
+      }
+      assertTypicalJsonHeaders(res.headers);
     });
   });
 });

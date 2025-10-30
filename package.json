@@ -2,31 +2,46 @@
   "name": "serverest-api-test-automation",
   "version": "1.0.0",
   "description": "Projeto de automação de testes de API do ServeRest",
+  "type": "module",
   "main": "index.js",
   "scripts": {
+    "cy:open": "cypress open --e2e",
     "test": "cypress run --e2e --headless",
-    "test:electron": "cypress run --e2e --browser electron --headless",
     "test:chrome": "cypress run --e2e --browser chrome --headless",
+    "test:chrome:headed": "cypress run --e2e --browser chrome",
     "test:firefox": "cypress run --e2e --browser firefox --headless",
-    "test:webkit": "cypress run --e2e --browser webkit --headless",
-    "test:post": "cypress run --e2e --spec 'cypress/e2e/post.usuarios.spec.cy.js' --headless",
-    "test:post:electron": "cypress run --e2e --spec 'cypress/e2e/post.usuarios.spec.cy.js' --browser electron --headless",
-    "test:get": "cypress run --e2e --spec 'cypress/e2e/get.usuarios.spec.cy.js' --headless",
-    "test:get:electron": "cypress run --e2e --spec 'cypress/e2e/get.usuarios.spec.cy.js' --browser electron --headless",
-    "test:get:byid": "cypress run --e2e --spec 'cypress/e2e/get.usuario.byid.spec.cy.js' --headless",
-    "test:get:byid:electron": "cypress run --e2e --spec 'cypress/e2e/get.usuario.byid.spec.cy.js' --browser electron --headless",
-    "test:delete": "cypress run --e2e --spec 'cypress/e2e/delete.usuarios.spec.cy.js' --headless",
-    "test:delete:electron": "cypress run --e2e --spec 'cypress/e2e/delete.usuarios.spec.cy.js' --browser electron --headless",
+    "test:electron": "cypress run --e2e --browser electron --headless",
+
+    "test:post": "cypress run --e2e --spec 'cypress/e2e/1-post.usuarios.spec.cy.js' --headless",
+    "test:post:electron": "cypress run --e2e --spec 'cypress/e2e/1-post.usuarios.spec.cy.js' --browser electron --headless",
+    "test:get": "cypress run --e2e --spec 'cypress/e2e/2-get.usuarios.spec.cy.js' --headless",
+    "test:get:electron": "cypress run --e2e --spec 'cypress/e2e/2-get.usuarios.spec.cy.js' --browser electron --headless",
+    "test:get:byid": "cypress run --e2e --spec 'cypress/e2e/3-get.usuario.byid.spec.cy.js' --headless",
+    "test:get:byid:electron": "cypress run --e2e --spec 'cypress/e2e/3-get.usuario.byid.spec.cy.js' --browser electron --headless",
+    "test:delete": "cypress run --e2e --spec 'cypress/e2e/4-delete.usuarios.spec.cy.js' --headless",
+    "test:delete:electron": "cypress run --e2e --spec 'cypress/e2e/4-delete.usuarios.spec.cy.js' --browser electron --headless",
+
     "test:all": "npm run test:post && npm run test:get && npm run test:get:byid && npm run test:delete",
-    "test:all:electron": "npm run test:post:electron && npm run test:get:electron && npm run test:get:byid:electron && npm run test:delete:electron",
-    "test:all:browsers": "npm run test:electron && npm run test:chrome && npm run test:firefox && npm run test:webkit",
-    "cy:open": "cypress open"
+    "test:all:browsers": "npm run test:electron && npm run test:chrome && npm run test:firefox",
+
+    "allure:clean": "rimraf reports/allure-results reports/allure-report",
+    "allure:generate": "allure generate reports/allure-results --clean -o reports/allure-report",
+    "allure:open": "allure open reports/allure-report",
+    "cy:run:allure": "npm run allure:clean && cypress run --e2e && npm run allure:generate && npm run allure:open",
+
+    "test:all:allure": "npm run allure:clean && npm run test:all && npm run allure:generate && npm run allure:open"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@shelex/cypress-allure-plugin": "^2.41.2",
     "ajv": "^8.12.0",
-    "cypress": "^13.6.3"
+    "allure-commandline": "^2.34.1",
+    "cypress": "^13.6.3",
+    "rimraf": "^6.0.1"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
