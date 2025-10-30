@@ -2,26 +2,7 @@
 // Especificação única: criação de usuário (POST /usuarios) – NEGATIVOS → POSITIVOS
 // Sem custom commands: uso direto de cy.request + validação AJV inline
 
-import Ajv from 'ajv';
-const ajv = new Ajv({ allErrors: true, strict: false });
-
-// ---- Helpers locais ----
-function assertTypicalJsonHeaders(headers) {
-  expect(headers).to.have.property('content-type');
-  expect(headers['content-type']).to.contain('application/json');
-  expect(headers).to.have.property('x-content-type-options', 'nosniff');
-  expect(headers).to.have.property('x-xss-protection', '1; mode=block');
-  expect(headers).to.have.property('strict-transport-security');
-  expect(headers['strict-transport-security']).to.contain('max-age=15552000');
-}
-
-function validateSchema(body, schema) {
-  const validate = ajv.compile(schema);
-  if (!validate(body)) {
-    throw new Error(`Schema validation failed:\n${JSON.stringify(validate.errors, null, 2)}
-Body:\n${JSON.stringify(body, null, 2)}`);
-  }
-}
+import { assertTypicalJsonHeaders, validateSchema } from '../support/helpers.js';
 
 // Substitui marcador especial por nome longo
 const withLongName = (payload) => {
@@ -32,7 +13,7 @@ const withLongName = (payload) => {
   return p;
 };
 
-describe('API /usuarios :: CRIAÇÃO (NEGATIVOS → POSITIVOS)', () => {
+describe('API /usuarios :: CRIAÇÃO', () => {
   let fx;
   let schemaSuccess;
   let schemaEmailInUse;

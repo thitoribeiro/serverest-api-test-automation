@@ -1,8 +1,7 @@
 // Setup para criar usuários de teste antes dos testes GET, PUT e DELETE
 // Este arquivo deve ser importado nos specs que precisam dos usuários criados
 
-import Ajv from 'ajv';
-const ajv = new Ajv({ allErrors: true, strict: false });
+import { validateSchema } from './helpers.js';
 
 // Schema para resposta de sucesso do POST /usuarios
 const postUsuarioSuccessSchema = {
@@ -14,14 +13,6 @@ const postUsuarioSuccessSchema = {
   },
   "additionalProperties": true
 };
-
-// Helper para validar schema
-function validateSchema(body, schema) {
-  const validate = ajv.compile(schema);
-  if (!validate(body)) {
-    throw new Error(`Schema validation failed:\n${JSON.stringify(validate.errors, null, 2)}`);
-  }
-}
 
 // Helper para criar usuário
 export function createTestUser(userData) {

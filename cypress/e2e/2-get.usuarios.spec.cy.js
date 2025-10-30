@@ -2,27 +2,8 @@
 // Especificação única: listagem de usuários (GET /usuarios) – NEGATIVOS → POSITIVOS
 // Sem custom commands: uso direto de cy.request + validação AJV inline
 
-import Ajv from 'ajv';
 import { createTestUser } from '../support/setup.usuarios.js';
-const ajv = new Ajv({ allErrors: true, strict: false });
-
-// ---- Helpers locais ----
-function assertJsonHeaders(headers) {
-  expect(headers).to.have.property('content-type');
-  expect(headers['content-type']).to.contain('application/json');
-  expect(headers).to.have.property('x-content-type-options', 'nosniff');
-  expect(headers).to.have.property('x-xss-protection', '1; mode=block');
-  expect(headers).to.have.property('strict-transport-security');
-  expect(headers['strict-transport-security']).to.contain('max-age=15552000');
-}
-
-function validateSchema(body, schema) {
-  const validate = ajv.compile(schema);
-  if (!validate(body)) {
-    throw new Error(`Schema validation failed:\n${JSON.stringify(validate.errors, null, 2)}
-Body:\n${JSON.stringify(body, null, 2)}`);
-  }
-}
+import { assertTypicalJsonHeaders, validateSchema } from '../support/helpers.js';
 
 // Schema para resposta de sucesso do GET /usuarios
 const getUsuariosSuccessSchema = {
@@ -49,7 +30,7 @@ const getUsuariosSuccessSchema = {
   "additionalProperties": true
 };
 
-describe('API /usuarios :: LISTAGEM (NEGATIVOS → POSITIVOS)', () => {
+describe('API /usuarios :: LISTAGEM', () => {
   let fx;
   let testUsers;
 
@@ -94,7 +75,7 @@ describe('API /usuarios :: LISTAGEM (NEGATIVOS → POSITIVOS)', () => {
       // Assert
       cy.log(`CT-001 - URL: ${Cypress.config('baseUrl')}${url} | Status: ${res.status}`);
       expect(res.status).to.eq(400);
-      assertJsonHeaders(res.headers);
+      assertTypicalJsonHeaders(res.headers);
       expect(res.body.email).to.eq('email deve ser um email válido');
     });
   });
@@ -109,7 +90,7 @@ describe('API /usuarios :: LISTAGEM (NEGATIVOS → POSITIVOS)', () => {
       // Assert
       cy.log(`CT-002 - URL: ${Cypress.config('baseUrl')}${url} | Status: ${res.status}`);
       expect(res.status).to.eq(400);
-      assertJsonHeaders(res.headers);
+      assertTypicalJsonHeaders(res.headers);
       expect(res.body.administrador).to.eq("administrador deve ser 'true' ou 'false'");
     });
   });
@@ -124,7 +105,7 @@ describe('API /usuarios :: LISTAGEM (NEGATIVOS → POSITIVOS)', () => {
       // Assert
       cy.log(`CT-003 - URL: ${Cypress.config('baseUrl')}${url} | Status: ${res.status}`);
       expect(res.status).to.eq(200);
-      assertJsonHeaders(res.headers);
+      assertTypicalJsonHeaders(res.headers);
       expect(res.body.quantidade).to.eq(0);
       expect(res.body.usuarios).to.deep.eq([]);
       validateSchema(res.body, getUsuariosSuccessSchema);
@@ -140,7 +121,7 @@ describe('API /usuarios :: LISTAGEM (NEGATIVOS → POSITIVOS)', () => {
       // Assert
       cy.log(`CT-004 - URL: ${Cypress.config('baseUrl')}${url} | Status: ${res.status}`);
       expect(res.status).to.eq(400);
-      assertJsonHeaders(res.headers);
+      assertTypicalJsonHeaders(res.headers);
       expect(res.body.foo).to.eq('foo não é permitido');
     });
   });
@@ -155,7 +136,7 @@ describe('API /usuarios :: LISTAGEM (NEGATIVOS → POSITIVOS)', () => {
       // Assert
       cy.log(`CT-005 - URL: ${Cypress.config('baseUrl')}${url} | Status: ${res.status}`);
       expect(res.status).to.eq(200);
-      assertJsonHeaders(res.headers);
+      assertTypicalJsonHeaders(res.headers);
       expect(res.body.quantidade).to.eq(0);
       expect(res.body.usuarios).to.deep.eq([]);
       validateSchema(res.body, getUsuariosSuccessSchema);
@@ -173,7 +154,7 @@ describe('API /usuarios :: LISTAGEM (NEGATIVOS → POSITIVOS)', () => {
       cy.log(`CT-006 - URL: ${Cypress.config('baseUrl')}${url} | Status: ${res.status}`);
       cy.log(`CT-006 - Assunção: quantidade=0, observado: quantidade=${res.body.quantidade}`);
       expect(res.status).to.eq(200);
-      assertJsonHeaders(res.headers);
+      assertTypicalJsonHeaders(res.headers);
       expect(res.body.quantidade).to.eq(0);
       validateSchema(res.body, getUsuariosSuccessSchema);
     });
@@ -193,7 +174,7 @@ describe('API /usuarios :: LISTAGEM (NEGATIVOS → POSITIVOS)', () => {
       cy.log(`CT-007 - Dados A: email=${usuarioA.email}, nome=${usuarioA.nome}`);
       cy.log(`CT-007 - Dados B: email=${usuarioB.email}, nome=${usuarioB.nome}`);
       expect(res.status).to.eq(200);
-      assertJsonHeaders(res.headers);
+      assertTypicalJsonHeaders(res.headers);
       expect(res.body.quantidade).to.eq(0);
       expect(res.body.usuarios).to.deep.eq([]);
       validateSchema(res.body, getUsuariosSuccessSchema);
@@ -213,7 +194,7 @@ describe('API /usuarios :: LISTAGEM (NEGATIVOS → POSITIVOS)', () => {
       cy.log(`CT-008 - Nome original: ${usuario.nome}, Nome lowercase: ${nomeLowercase}`);
       cy.log(`CT-008 - Assunção: quantidade=0 ou 1, observado: quantidade=${res.body.quantidade}`);
       expect(res.status).to.eq(200);
-      assertJsonHeaders(res.headers);
+      assertTypicalJsonHeaders(res.headers);
       validateSchema(res.body, getUsuariosSuccessSchema);
     });
   });
@@ -231,7 +212,7 @@ describe('API /usuarios :: LISTAGEM (NEGATIVOS → POSITIVOS)', () => {
       cy.log(`CT-009 - Nome completo: ${usuario.nome}, Substring: ${substring}`);
       cy.log(`CT-009 - Assunção: quantidade=0 ou ≥1, observado: quantidade=${res.body.quantidade}`);
       expect(res.status).to.eq(200);
-      assertJsonHeaders(res.headers);
+      assertTypicalJsonHeaders(res.headers);
       validateSchema(res.body, getUsuariosSuccessSchema);
     });
   });
@@ -273,7 +254,7 @@ describe('API /usuarios :: LISTAGEM (NEGATIVOS → POSITIVOS)', () => {
       // Assert
       cy.log(`CT-012 - URL: ${Cypress.config('baseUrl')}${url} | Status: ${res.status}`);
       expect(res.status).to.eq(400);
-      assertJsonHeaders(res.headers);
+      assertTypicalJsonHeaders(res.headers);
       expect(res.body.email).to.eq('email deve ser uma string');
     });
   });
@@ -295,7 +276,7 @@ describe('API /usuarios :: LISTAGEM (NEGATIVOS → POSITIVOS)', () => {
       cy.log(`CT-013 - URL: ${Cypress.config('baseUrl')}${url} | Status: ${res.status}`);
       cy.log(`CT-013 - Assunção: quantidade=0 ou 1, observado: quantidade=${res.body.quantidade}`);
       expect(res.status).to.eq(200);
-      assertJsonHeaders(res.headers);
+      assertTypicalJsonHeaders(res.headers);
       validateSchema(res.body, getUsuariosSuccessSchema);
     });
   });
@@ -316,7 +297,7 @@ describe('API /usuarios :: LISTAGEM (NEGATIVOS → POSITIVOS)', () => {
       cy.log(`CT-014 - URL: ${Cypress.config('baseUrl')}${url} | Status: ${res.status}`);
       cy.log(`CT-014 - Quantidade: ${res.body.quantidade}, Usuários: ${res.body.usuarios.length}`);
       expect(res.status).to.eq(200);
-      assertJsonHeaders(res.headers);
+      assertTypicalJsonHeaders(res.headers);
       expect(res.body.quantidade).to.be.at.least(1);
       expect(res.body.usuarios).to.be.an('array');
       expect(res.body.usuarios.length).to.be.at.least(1);
@@ -345,7 +326,7 @@ describe('API /usuarios :: LISTAGEM (NEGATIVOS → POSITIVOS)', () => {
         cy.log(`CT-015 - URL: ${Cypress.config('baseUrl')}${url} | Status: ${res.status}`);
         cy.log(`CT-015 - ID buscado: ${usuarioId}, Quantidade: ${res.body.quantidade}`);
         expect(res.status).to.eq(200);
-        assertJsonHeaders(res.headers);
+        assertTypicalJsonHeaders(res.headers);
         expect(res.body.quantidade).to.eq(1);
         expect(res.body.usuarios[0]._id).to.eq(usuarioId);
         validateSchema(res.body, getUsuariosSuccessSchema);
@@ -369,7 +350,7 @@ describe('API /usuarios :: LISTAGEM (NEGATIVOS → POSITIVOS)', () => {
       cy.log(`CT-016 - URL: ${Cypress.config('baseUrl')}${url} | Status: ${res.status}`);
       cy.log(`CT-016 - Email buscado: ${emailUnico}, Quantidade: ${res.body.quantidade}`);
       expect(res.status).to.eq(200);
-      assertJsonHeaders(res.headers);
+      assertTypicalJsonHeaders(res.headers);
       expect(res.body.quantidade).to.eq(1);
       expect(res.body.usuarios[0].email).to.eq(emailUnico);
       validateSchema(res.body, getUsuariosSuccessSchema);
@@ -392,7 +373,7 @@ describe('API /usuarios :: LISTAGEM (NEGATIVOS → POSITIVOS)', () => {
       cy.log(`CT-017 - URL: ${Cypress.config('baseUrl')}${url} | Status: ${res.status}`);
       cy.log(`CT-017 - Nome buscado: ${nomeUnico}, Quantidade: ${res.body.quantidade}`);
       expect(res.status).to.eq(200);
-      assertJsonHeaders(res.headers);
+      assertTypicalJsonHeaders(res.headers);
       expect(res.body.quantidade).to.eq(1);
       expect(res.body.usuarios[0].nome).to.eq(nomeUnico);
       validateSchema(res.body, getUsuariosSuccessSchema);
@@ -409,7 +390,7 @@ describe('API /usuarios :: LISTAGEM (NEGATIVOS → POSITIVOS)', () => {
       cy.log(`CT-018 - URL: ${Cypress.config('baseUrl')}${url} | Status: ${res.status}`);
       cy.log(`CT-018 - Quantidade: ${res.body.quantidade}`);
       expect(res.status).to.eq(200);
-      assertJsonHeaders(res.headers);
+      assertTypicalJsonHeaders(res.headers);
       expect(res.body.quantidade).to.be.at.least(1);
       
       // Verificar que todos são administradores
@@ -431,7 +412,7 @@ describe('API /usuarios :: LISTAGEM (NEGATIVOS → POSITIVOS)', () => {
       cy.log(`CT-019 - URL: ${Cypress.config('baseUrl')}${url} | Status: ${res.status}`);
       cy.log(`CT-019 - Quantidade: ${res.body.quantidade}`);
       expect(res.status).to.eq(200);
-      assertJsonHeaders(res.headers);
+      assertTypicalJsonHeaders(res.headers);
       expect(res.body.quantidade).to.be.at.least(1);
       
       // Verificar que todos não são administradores
@@ -460,7 +441,7 @@ describe('API /usuarios :: LISTAGEM (NEGATIVOS → POSITIVOS)', () => {
       cy.log(`CT-020 - Password buscado: ${password}, Quantidade: ${res.body.quantidade}`);
       cy.log(`CT-020 - RISCO: Filtro por password pode expor dados sensíveis`);
       expect(res.status).to.eq(200);
-      assertJsonHeaders(res.headers);
+      assertTypicalJsonHeaders(res.headers);
       expect(res.body.quantidade).to.be.at.least(1);
       
       // Verificar que todos têm a senha especificada
@@ -488,7 +469,7 @@ describe('API /usuarios :: LISTAGEM (NEGATIVOS → POSITIVOS)', () => {
         cy.log(`CT-021 - ID: ${usuarioId}, Email: ${usuario.email}, Nome: ${usuario.nome}`);
         cy.log(`CT-021 - Quantidade: ${res.body.quantidade}`);
         expect(res.status).to.eq(200);
-        assertJsonHeaders(res.headers);
+        assertTypicalJsonHeaders(res.headers);
         expect(res.body.quantidade).to.eq(1);
         expect(res.body.usuarios[0]._id).to.eq(usuarioId);
         expect(res.body.usuarios[0].email).to.eq(usuario.email);
@@ -513,7 +494,7 @@ describe('API /usuarios :: LISTAGEM (NEGATIVOS → POSITIVOS)', () => {
       cy.log(`CT-022 - Nome duplicado: ${nomeDuplicado}, Quantidade: ${res.body.quantidade}`);
       cy.log(`CT-022 - Usuário 1: ${usuario1.email}, Usuário 2: ${usuario2.email}`);
       expect(res.status).to.eq(200);
-      assertJsonHeaders(res.headers);
+      assertTypicalJsonHeaders(res.headers);
       expect(res.body.quantidade).to.be.at.least(2);
       
       // Verificar que todos têm o nome especificado (pode ter timestamp adicionado)
@@ -536,7 +517,7 @@ describe('API /usuarios :: LISTAGEM (NEGATIVOS → POSITIVOS)', () => {
       cy.log(`CT-023 - URL: ${Cypress.config('baseUrl')}${url} | Status: ${res.status}`);
       cy.log(`CT-023 - Email inexistente: ${emailInexistente}, Quantidade: ${res.body.quantidade}`);
       expect(res.status).to.eq(200);
-      assertJsonHeaders(res.headers);
+      assertTypicalJsonHeaders(res.headers);
       expect(res.body.quantidade).to.eq(0);
       expect(res.body.usuarios).to.deep.eq([]);
       validateSchema(res.body, getUsuariosSuccessSchema);
